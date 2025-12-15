@@ -622,23 +622,25 @@ function main() {
 
   // Show error summary if verbose or if there were significant errors
   if ((verbose || captureErrors.length > 5) && captureErrors.length > 0) {
-    console.log(`\n⚠️  Capture errors (${captureErrors.length}):`);
+    console.log(`\n⚠️  Capture warnings (${captureErrors.length}):`);
+    console.log('   Some commands failed - this is normal if you don\'t have certain tools installed.');
+    console.log('   (e.g., nvm, pyenv, rbenv for version managers you don\'t use)');
     const errorGroups = {};
     for (const error of captureErrors) {
       const key = error.reason;
       errorGroups[key] = (errorGroups[key] || 0) + 1;
     }
-    for (const [reason, count] of Object.entries(errorGroups)) {
-      console.log(`   - ${reason}: ${count} command(s)`);
-    }
+    console.log(`\n   - ${errorGroups['Command failed or tool not installed'] || captureErrors.length} command(s) skipped`);
     if (verbose) {
-      console.log('\nFailed commands:');
+      console.log('\nSkipped commands (use --verbose for details):');
       for (const error of captureErrors.slice(0, 10)) {
         console.log(`   - ${error.command}`);
       }
       if (captureErrors.length > 10) {
         console.log(`   ... and ${captureErrors.length - 10} more`);
       }
+    } else {
+      console.log('   Use --verbose to see which commands were skipped');
     }
   }
 

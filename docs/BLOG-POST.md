@@ -187,6 +187,11 @@ After extensive production use and feedback, the tool includes comprehensive sec
 
 ## Getting Started
 
+**Requirements:**
+- Node.js 18.0.0 or higher
+- macOS (tested on both Intel and Apple Silicon)
+- Homebrew (optional - tool works without it, just won't capture Homebrew packages)
+
 **Quick Start:**
 
 ```bash
