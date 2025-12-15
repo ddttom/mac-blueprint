@@ -1,0 +1,120 @@
+{
+  "version": "2.0",
+  "system": {
+    "hostname": "test-mac",
+    "macosVersion": "14.1",
+    "architecture": "arm64",
+    "homebrewVersion": "Homebrew 4.0.0",
+    "captureDate": "2024-12-15T10:00:00.000Z"
+  },
+  "applications": [
+    {
+      "name": "Xcode.app",
+      "path": "/Applications/Xcode.app",
+      "version": "15.0",
+      "bundleId": "com.apple.dt.Xcode"
+    },
+    {
+      "name": "Visual Studio Code.app",
+      "path": "/Applications/Visual Studio Code.app",
+      "version": "1.85.0",
+      "bundleId": "com.microsoft.VSCode"
+    }
+  ],
+  "masApps": [
+    {
+      "id": "497799835",
+      "name": "Xcode",
+      "version": "15.0"
+    }
+  ],
+  "homebrew": {
+    "taps": [
+      "homebrew/core",
+      "homebrew/cask"
+    ],
+    "formulae": [
+      {
+        "name": "node",
+        "version": "20.10.0"
+      },
+      {
+        "name": "git",
+        "version": "2.43.0"
+      }
+    ],
+    "casks": [
+      {
+        "name": "visual-studio-code",
+        "version": "1.85.0"
+      }
+    ]
+  },
+  "binaries": [],
+  "homeBin": [],
+  "githubRepos": [
+    {
+      "name": "mac-blueprint",
+      "path": "/Users/test/Documents/github/mac-blueprint",
+      "isGit": true,
+      "remoteUrl": "https://github.com/user/mac-blueprint.git",
+      "branch": "main",
+      "hasUncommittedChanges": false
+    }
+  ],
+  "globalPackages": {
+    "npm": [
+      {
+        "name": "typescript",
+        "version": "5.3.0"
+      }
+    ],
+    "bun": [],
+    "dart": [],
+    "ruby": []
+  },
+  "shellConfigs": [
+    {
+      "name": ".zshrc",
+      "path": "/Users/test/.zshrc",
+      "size": 1024,
+      "lines": 50,
+      "content": "export PATH=/usr/local/bin:$PATH\nalias ll='ls -la'"
+    }
+  ],
+  "gitConfig": {
+    "user": {
+      "name": "Test User",
+      "email": "test@example.com"
+    },
+    "settings": [
+      {
+        "key": "user.name",
+        "value": "Test User"
+      },
+      {
+        "key": "user.email",
+        "value": "test@example.com"
+      }
+    ]
+  },
+  "versionManagers": {
+    "nvm": {
+      "installed": true,
+      "versions": ["18.0.0", "20.0.0"]
+    },
+    "pyenv": {
+      "installed": false,
+      "versions": []
+    },
+    "rbenv": {
+      "installed": false,
+      "versions": []
+    }
+  },
+  "menubarConfig": {
+    "loginItems": ["Dropbox"],
+    "runningApps": ["Dropbox", "Slack"],
+    "launchAgents": []
+  }
+}

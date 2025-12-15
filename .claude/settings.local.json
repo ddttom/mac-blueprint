@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(sudo rm:*)",
+      "Bash(sudo ln:*)",
+      "Bash(node --test:*)",
+      "Bash(npm run apply:*)",
+      "Bash(npm run diff:*)",
+      "Bash(tree:*)",
+      "Bash(npm test:*)",
+      "Bash(npm run capture:*)"
+    ]
+  }
+}

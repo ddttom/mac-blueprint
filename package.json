@@ -1,0 +1,46 @@
+{
+  "name": "mac-blueprint",
+  "version": "2.0.0",
+  "description": "Blueprint your Mac development environment. Capture on one machine, apply on another.",
+  "main": "src/tools/apply.js",
+  "scripts": {
+    "test": "node --test tests/unit/*.test.js",
+    "test:watch": "node --test --watch tests/unit/*.test.js",
+    "lint": "eslint src/**/*.js tests/**/*.js",
+    "lint:fix": "eslint --fix src/**/*.js tests/**/*.js",
+    "format": "prettier --write '**/*.{js,json,md}'",
+    "format:check": "prettier --check '**/*.{js,json,md}'",
+    "capture": "node src/tools/capture.js",
+    "apply": "node src/tools/apply.js",
+    "diff": "node src/tools/diff.js"
+  },
+  "keywords": [
+    "mac",
+    "macos",
+    "backup",
+    "restore",
+    "setup",
+    "environment",
+    "developer",
+    "homebrew",
+    "automation"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ddttom/mac-blueprint.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ddttom/mac-blueprint/issues"
+  },
+  "homepage": "https://github.com/ddttom/mac-blueprint#readme",
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.50.0",
+    "prettier": "^3.0.0"
+  }
+}
