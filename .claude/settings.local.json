@@ -8,7 +8,8 @@
       "Bash(npm run diff:*)",
       "Bash(tree:*)",
       "Bash(npm test:*)",
-      "Bash(npm run capture:*)"
+      "Bash(npm run capture:*)",
+      "Bash(npm run lint)"
     ]
   }
 }

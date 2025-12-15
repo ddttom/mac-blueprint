@@ -6,11 +6,13 @@ const { execSync } = require('child_process');
  * @returns {string|null} - The sanitized name or null if invalid
  */
 function sanitizePackageName(name) {
-  if (typeof name !== 'string') return null;
+  if (typeof name !== 'string') {
+return null;
+}
 
   // Allow alphanumeric, dash, underscore, slash (for taps), @ (for scoped packages), dot
   // This covers: regular packages, taps (user/repo), scoped packages (@org/pkg)
-  if (/^[@a-zA-Z0-9.\-_\/]+$/.test(name)) {
+  if (/^[@a-zA-Z0-9._/-]+$/.test(name)) {
     return name;
   }
 
@@ -97,9 +99,9 @@ function sanitizePackages(packages, context = 'packages') {
  */
 function detectSecrets(content) {
   const patterns = [
-    { name: 'API Key', regex: /(?:api[_-]?key|apikey)[\s:=]+['"]?([a-zA-Z0-9_\-]{20,})['"]?/gi },
+    { name: 'API Key', regex: /(?:api[_-]?key|apikey)[\s:=]+['"]?([a-zA-Z0-9_-]{20,})['"]?/gi },
     { name: 'Password', regex: /(?:password|passwd|pwd)[\s:=]+['"]?([^\s'"]+)['"]?/gi },
-    { name: 'Token', regex: /(?:token|access[_-]?token)[\s:=]+['"]?([a-zA-Z0-9_\-]{20,})['"]?/gi },
+    { name: 'Token', regex: /(?:token|access[_-]?token)[\s:=]+['"]?([a-zA-Z0-9_-]{20,})['"]?/gi },
     { name: 'Secret', regex: /(?:secret|private[_-]?key)[\s:=]+['"]?([^\s'"]+)['"]?/gi },
     { name: 'AWS Key', regex: /AKIA[0-9A-Z]{16}/gi },
     { name: 'GitHub Token', regex: /gh[ps]_[a-zA-Z0-9]{36}/gi },
@@ -131,9 +133,9 @@ function detectSecrets(content) {
  */
 function redactSecrets(content) {
   const patterns = [
-    /(?:api[_-]?key|apikey)[\s:=]+['"]?([a-zA-Z0-9_\-]{20,})['"]?/gi,
+    /(?:api[_-]?key|apikey)[\s:=]+['"]?([a-zA-Z0-9_-]{20,})['"]?/gi,
     /(?:password|passwd|pwd)[\s:=]+['"]?([^\s'"]+)['"]?/gi,
-    /(?:token|access[_-]?token)[\s:=]+['"]?([a-zA-Z0-9_\-]{20,})['"]?/gi,
+    /(?:token|access[_-]?token)[\s:=]+['"]?([a-zA-Z0-9_-]{20,})['"]?/gi,
     /(?:secret|private[_-]?key)[\s:=]+['"]?([^\s'"]+)['"]?/gi,
     /AKIA[0-9A-Z]{16}/gi,
     /gh[ps]_[a-zA-Z0-9]{36}/gi,

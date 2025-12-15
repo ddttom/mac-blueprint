@@ -1,10 +1,9 @@
 #!/usr/bin/env node
 
-const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const { execSilent, detectSecrets } = require('../utils/exec');
-const { SCHEMA_VERSION, createEmptySetup } = require('../utils/schema');
+const { SCHEMA_VERSION } = require('../utils/schema');
 const { getMasApps, isMasInstalled } = require('../utils/mas');
 
 // Track errors during capture for summary
@@ -21,25 +20,25 @@ function exec(command) {
 function getApplications() {
   const apps = [];
   const appsDir = '/Applications';
-  
+
   try {
     const files = fs.readdirSync(appsDir);
     for (const file of files) {
       if (file.endsWith('.app')) {
         const appPath = path.join(appsDir, file);
         const plistPath = path.join(appPath, 'Contents/Info.plist');
-        
+
         let version = 'unknown';
         let bundleId = 'unknown';
-        
+
         if (fs.existsSync(plistPath)) {
           const versionCmd = `/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" "${plistPath}" 2>/dev/null`;
           const bundleCmd = `/usr/libexec/PlistBuddy -c "Print CFBundleIdentifier" "${plistPath}" 2>/dev/null`;
-          
+
           version = exec(versionCmd) || 'unknown';
           bundleId = exec(bundleCmd) || 'unknown';
         }
-        
+
         apps.push({
           name: file,
           path: appPath,
@@ -51,14 +50,14 @@ function getApplications() {
   } catch (error) {
     console.error('Error reading applications:', error.message);
   }
-  
+
   return apps;
 }
 
 function getHomebrewCasks() {
   const casks = [];
   const output = exec('brew list --cask --versions 2>/dev/null');
-  
+
   if (output) {
     const lines = output.split('\n');
     for (const line of lines) {
@@ -71,14 +70,14 @@ function getHomebrewCasks() {
       }
     }
   }
-  
+
   return casks;
 }
 
 function getHomebrewFormulae() {
   const formulae = [];
   const output = exec('brew list --formula --versions 2>/dev/null');
-  
+
   if (output) {
     const lines = output.split('\n');
     for (const line of lines) {
@@ -91,14 +90,14 @@ function getHomebrewFormulae() {
       }
     }
   }
-  
+
   return formulae;
 }
 
 function getHomebrewTaps() {
   const taps = [];
   const output = exec('brew tap 2>/dev/null');
-  
+
   if (output) {
     const lines = output.split('\n');
     for (const line of lines) {
@@ -107,14 +106,14 @@ function getHomebrewTaps() {
       }
     }
   }
-  
+
   return taps;
 }
 
 function getBinaries() {
   const binaries = [];
   const paths = ['/usr/local/bin', '/opt/homebrew/bin'];
-  
+
   for (const binPath of paths) {
     if (fs.existsSync(binPath)) {
       try {
@@ -122,7 +121,7 @@ function getBinaries() {
         for (const file of files) {
           const fullPath = path.join(binPath, file);
           const stats = fs.lstatSync(fullPath);
-          
+
           if (stats.isSymbolicLink()) {
             const target = fs.readlinkSync(fullPath);
             binaries.push({
@@ -144,29 +143,29 @@ function getBinaries() {
       }
     }
   }
-  
+
   return binaries;
 }
 
 function getHomeBinaries() {
   const binaries = [];
   const homeBin = path.join(process.env.HOME, 'bin');
-  
+
   if (!fs.existsSync(homeBin)) {
     return binaries;
   }
-  
+
   try {
     const files = fs.readdirSync(homeBin);
     for (const file of files) {
       const fullPath = path.join(homeBin, file);
       const stats = fs.lstatSync(fullPath);
-      
-      let fileInfo = {
+
+      const fileInfo = {
         name: file,
         path: fullPath
       };
-      
+
       if (stats.isSymbolicLink()) {
         const target = fs.readlinkSync(fullPath);
         fileInfo.type = 'symlink';
@@ -178,67 +177,67 @@ function getHomeBinaries() {
       } else if (stats.isDirectory()) {
         fileInfo.type = 'directory';
       }
-      
+
       binaries.push(fileInfo);
     }
   } catch (error) {
-    console.error(`Error reading ~/bin:`, error.message);
+    console.error('Error reading ~/bin:', error.message);
   }
-  
+
   return binaries;
 }
 
 function getGithubRepositories() {
   const repos = [];
   const githubPath = path.join(process.env.HOME, 'Documents', 'github');
-  
+
   if (!fs.existsSync(githubPath)) {
     return repos;
   }
-  
+
   try {
     const entries = fs.readdirSync(githubPath);
     for (const entry of entries) {
       const fullPath = path.join(githubPath, entry);
       const stats = fs.lstatSync(fullPath);
-      
+
       if (stats.isDirectory() && !entry.startsWith('.')) {
-        let repoInfo = {
+        const repoInfo = {
           name: entry,
           path: fullPath
         };
-        
+
         // Check if it's a git repository
         const gitPath = path.join(fullPath, '.git');
         if (fs.existsSync(gitPath)) {
           repoInfo.isGit = true;
-          
+
           // Try to get remote URL
           const remoteUrl = exec(`cd "${fullPath}" && git config --get remote.origin.url 2>/dev/null`);
           if (remoteUrl) {
             repoInfo.remoteUrl = remoteUrl;
           }
-          
+
           // Get current branch
           const branch = exec(`cd "${fullPath}" && git branch --show-current 2>/dev/null`);
           if (branch) {
             repoInfo.branch = branch;
           }
-          
+
           // Check for uncommitted changes
           const status = exec(`cd "${fullPath}" && git status --porcelain 2>/dev/null`);
           repoInfo.hasUncommittedChanges = status ? status.length > 0 : false;
         } else {
           repoInfo.isGit = false;
         }
-        
+
         repos.push(repoInfo);
       }
     }
   } catch (error) {
-    console.error(`Error reading ~/Documents/github:`, error.message);
+    console.error('Error reading ~/Documents/github:', error.message);
   }
-  
+
   return repos;
 }
 
@@ -249,7 +248,7 @@ function getGlobalPackages() {
     dart: [],
     ruby: []
   };
-  
+
   // Get npm global packages
   const npmOutput = exec('npm list -g --depth=0 --json 2>/dev/null');
   if (npmOutput) {
@@ -267,7 +266,7 @@ function getGlobalPackages() {
       console.error('Error parsing npm packages:', error.message);
     }
   }
-  
+
   // Get bun global packages
   const bunOutput = exec('bun pm ls -g 2>/dev/null');
   if (bunOutput) {
@@ -283,7 +282,7 @@ function getGlobalPackages() {
       }
     }
   }
-  
+
   // Get dart global packages
   const dartOutput = exec('dart pub global list 2>/dev/null');
   if (dartOutput) {
@@ -299,7 +298,7 @@ function getGlobalPackages() {
       }
     }
   }
-  
+
   // Get ruby gems
   const rubyOutput = exec('gem list 2>/dev/null');
   if (rubyOutput) {
@@ -315,7 +314,7 @@ function getGlobalPackages() {
       }
     }
   }
-  
+
   return packages;
 }
 
@@ -329,7 +328,7 @@ function getShellConfigs() {
     '.zshenv',
     '.config/fish/config.fish'
   ];
-  
+
   for (const configFile of configFiles) {
     const fullPath = path.join(process.env.HOME, configFile);
     if (fs.existsSync(fullPath)) {
@@ -348,7 +347,7 @@ function getShellConfigs() {
       }
     }
   }
-  
+
   return configs;
 }
 
@@ -357,14 +356,18 @@ function getGitConfig() {
     user: {},
     settings: []
   };
-  
+
   // Get user name and email
   const userName = exec('git config --global user.name 2>/dev/null');
   const userEmail = exec('git config --global user.email 2>/dev/null');
-  
-  if (userName) config.user.name = userName;
-  if (userEmail) config.user.email = userEmail;
-  
+
+  if (userName) {
+config.user.name = userName;
+}
+  if (userEmail) {
+config.user.email = userEmail;
+}
+
   // Get all global config
   const configOutput = exec('git config --global --list 2>/dev/null');
   if (configOutput) {
@@ -380,7 +383,7 @@ function getGitConfig() {
       }
     }
   }
-  
+
   // Check for .gitignore_global
   const gitignorePath = path.join(process.env.HOME, '.gitignore_global');
   if (fs.existsSync(gitignorePath)) {
@@ -390,7 +393,7 @@ function getGitConfig() {
       console.error('Error reading .gitignore_global:', error.message);
     }
   }
-  
+
   return config;
 }
 
@@ -400,7 +403,7 @@ function getVersionManagers() {
     pyenv: { installed: false, versions: [] },
     rbenv: { installed: false, versions: [] }
   };
-  
+
   // Check nvm
   const nvmDir = path.join(process.env.HOME, '.nvm');
   if (fs.existsSync(nvmDir)) {
@@ -416,7 +419,7 @@ function getVersionManagers() {
       }
     }
   }
-  
+
   // Check pyenv
   const pyenvOutput = exec('pyenv versions 2>/dev/null');
   if (pyenvOutput) {
@@ -429,7 +432,7 @@ function getVersionManagers() {
       }
     }
   }
-  
+
   // Check rbenv
   const rbenvOutput = exec('rbenv versions 2>/dev/null');
   if (rbenvOutput) {
@@ -442,7 +445,7 @@ function getVersionManagers() {
       }
     }
   }
-  
+
   return managers;
 }
 
@@ -452,7 +455,7 @@ function getMenubarConfiguration() {
     runningApps: [],
     launchAgents: []
   };
-  
+
   // Get login items using osascript
   const loginItemsOutput = exec('osascript -e \'tell application "System Events" to get the name of every login item\' 2>/dev/null');
   if (loginItemsOutput) {
@@ -463,15 +466,15 @@ function getMenubarConfiguration() {
       }
     }
   }
-  
+
   // Get running apps that might be menubar apps
-  const psOutput = exec('ps aux | grep -i "\.app/Contents/MacOS" | grep -v grep 2>/dev/null');
+  const psOutput = exec('ps aux | grep -i ".app/Contents/MacOS" | grep -v grep 2>/dev/null');
   if (psOutput) {
     const lines = psOutput.split('\n');
     const appSet = new Set();
-    
+
     for (const line of lines) {
-      const match = line.match(/([^\/]+)\.app\/Contents\/MacOS/);
+      const match = line.match(/([^/]+)\.app\/Contents\/MacOS/);
       if (match) {
         const appName = match[1];
         // Filter out main system apps
@@ -480,16 +483,16 @@ function getMenubarConfiguration() {
         }
       }
     }
-    
+
     menubar.runningApps = Array.from(appSet).sort();
   }
-  
+
   // Get Launch Agents (both user and system)
   const launchAgentsPaths = [
     path.join(process.env.HOME, 'Library/LaunchAgents'),
     '/Library/LaunchAgents'
   ];
-  
+
   for (const agentPath of launchAgentsPaths) {
     if (fs.existsSync(agentPath)) {
       try {
@@ -498,12 +501,12 @@ function getMenubarConfiguration() {
           if (file.endsWith('.plist')) {
             const fullPath = path.join(agentPath, file);
             const stats = fs.statSync(fullPath);
-            
+
             // Try to get label from plist
-            let label = file.replace('.plist', '');
+            const label = file.replace('.plist', '');
             const labelCmd = `/usr/libexec/PlistBuddy -c "Print Label" "${fullPath}" 2>/dev/null`;
             const plistLabel = exec(labelCmd);
-            
+
             menubar.launchAgents.push({
               name: file,
               path: fullPath,
@@ -518,7 +521,7 @@ function getMenubarConfiguration() {
       }
     }
   }
-  
+
   return menubar;
 }
 
@@ -584,7 +587,7 @@ function main() {
   if (isMasInstalled()) {
     console.log(`- Mac App Store apps: ${setup.masApps.length}`);
   } else {
-    console.log(`- Mac App Store apps: N/A (install 'mas' CLI: brew install mas)`);
+    console.log('- Mac App Store apps: N/A (install \'mas\' CLI: brew install mas)');
   }
   console.log(`- Homebrew casks: ${setup.homebrew.casks.length}`);
   console.log(`- Homebrew formulae: ${setup.homebrew.formulae.length}`);
@@ -645,7 +648,7 @@ function main() {
   }
 
   if (dryRun) {
-    console.log(`\nDRY RUN - No file created`);
+    console.log('\nDRY RUN - No file created');
     console.log(`Would create: mac-setup.json (${JSON.stringify(setup).length} bytes)`);
   } else {
     const outputFile = 'mac-setup.json';
