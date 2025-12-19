@@ -35,4 +35,30 @@ else
     echo "Symlink .agents/workflows already exists."
 fi
 
+# 4. Ensure symlink entries exist in .gitignore
+GITIGNORE_FILE=".gitignore"
+GITIGNORE_ENTRIES=(".agents/" "GEMINI.md" "AGENTS.md")
+
+# Create .gitignore if it doesn't exist
+if [ ! -f "$GITIGNORE_FILE" ]; then
+    echo "Creating $GITIGNORE_FILE"
+    touch "$GITIGNORE_FILE"
+fi
+
+# Check and add missing entries
+ADDED_ANY=false
+for entry in "${GITIGNORE_ENTRIES[@]}"; do
+    if ! grep -qF "$entry" "$GITIGNORE_FILE"; then
+        if [ "$ADDED_ANY" = false ]; then
+            echo "" >> "$GITIGNORE_FILE"
+            echo "# symlinks for AI tools" >> "$GITIGNORE_FILE"
+            ADDED_ANY=true
+        fi
+        echo "Adding $entry to .gitignore"
+        echo "$entry" >> "$GITIGNORE_FILE"
+    else
+        echo "$entry already in .gitignore"
+    fi
+done
+
 echo "Agent setup complete."
